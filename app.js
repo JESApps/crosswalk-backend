@@ -40,20 +40,12 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/csv_upload', (req, res) => {
-  const { cars } = req.body;
-  console.log(cars);
-  cars.forEach((car) => {
-    const studentIds = [];
-    car.forEach((student) => {
-      db.collection('students').add({
-        first: student.first,
-        last: student.last,
-      }).then((docRef) => {
-        studentIds.push(docRef.id);
-      });
-    });
-    db.collection('cars').add({
-      students: studentIds,
+  const { students } = req.body;
+  console.log(students);
+  students.forEach((student) => {
+    db.collection('students').add({
+      first: student.first,
+      last: student.last,
     });
   });
   res.send(200);
@@ -65,17 +57,23 @@ app.post('/checkIn/:id', (req, res) => {
     console.log('socket is undefined');
     res.send(500);
   }
-  db.collection('cars').doc(id).get().then((doc) => {
+  db.collection('students').doc(id).get().then((doc) => {
     if (doc.exists) {
-      const data = doc.data();
-      data.students.forEach((student) => {
-        db.collection('students').doc(student).get().then((studentDoc) => {
-          const studentData = studentDoc.data();
-          socket.emit('studentAdded', `${studentData.first} ${studentData.last}`);
-        });
-      });
+      const studentData = doc.data();
+      socket.emit('studentAdded', `${studentData.first} ${studentData.last}`);
+      res.sendStatus(200);
     }
-    res.send(200);
+  });
+});
+
+app.get('/students', (req, res) => {
+  db.collection('students').get().then((snapshot) => {
+    const students = [];
+    snapshot.docs.forEach((doc) => {
+      const { first, last } = doc.data();
+      students.push({ id: doc.id, first, last });
+    });
+    res.send({ students });
   });
 });
 
