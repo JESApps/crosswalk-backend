@@ -61,8 +61,21 @@ app.post('/checkIn/:id', (req, res) => {
     if (doc.exists) {
       const studentData = doc.data();
       socket.emit('studentAdded', `${studentData.first} ${studentData.last}`);
-      console.log('checked in');
       res.sendStatus(200);
+    } else {
+      res.sendStatus(500);
+    }
+  });
+});
+
+app.get('/students/:id', (req, res) => {
+  const { id } = req.params;
+  db.collection('students').get(id).then((doc) => {
+    if (doc.exists) {
+      const studentData = doc.data();
+      res.send({ student: `${studentData.first} ${studentData.last}` });
+    } else {
+      res.sendStatus(500);
     }
   });
 });
