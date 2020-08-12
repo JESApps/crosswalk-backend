@@ -70,7 +70,7 @@ app.post('/checkIn/:id', (req, res) => {
 
 app.get('/students/:id', (req, res) => {
   const { id } = req.params;
-  db.collection('students').get(id).then((doc) => {
+  db.collection('students').doc(id).get().then((doc) => {
     if (doc.exists) {
       const studentData = doc.data();
       res.send({ student: `${studentData.first} ${studentData.last}` });
