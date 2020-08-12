@@ -10,7 +10,7 @@ const port = 3001;
 const app = express();
 
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: '*',
 };
 app.use(cors(corsOptions));
 
@@ -61,6 +61,7 @@ app.post('/checkIn/:id', (req, res) => {
     if (doc.exists) {
       const studentData = doc.data();
       socket.emit('studentAdded', `${studentData.first} ${studentData.last}`);
+      console.log('checked in');
       res.sendStatus(200);
     }
   });
